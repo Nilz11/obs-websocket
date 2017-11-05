@@ -1,10 +1,17 @@
 cmake_minimum_required(VERSION 3.2)
+
+
 project(obs-websocket)
 
 set(CMAKE_PREFIX_PATH "${QTDIR}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_BUILD_TYPE Release)
+
+set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF) #...without compiler extensions like gnu++11
 
 include(external/FindLibObs.cmake)
 
@@ -14,6 +21,8 @@ find_package(Qt5WebSockets REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 
 add_subdirectory(deps/mbedtls EXCLUDE_FROM_ALL)
+add_subdirectory(deps/curlcpp)
+add_subdirectory(deps/socket.io-client-cpp)
 set(ENABLE_PROGRAMS false)
 
 set(obs-websocket_SOURCES 
@@ -47,7 +56,10 @@ include_directories(
 	${Qt5WebSockets_INCLUDES}
 	${Qt5Widgets_INCLUDES}
 	${mbedcrypto_INCLUDES}
-	"${CMAKE_SOURCE_DIR}/deps/mbedtls/include")
+	"${CMAKE_SOURCE_DIR}/deps/mbedtls/include"
+	"${CMAKE_SOURCE_DIR}/deps/curlcpp/include"
+	"${CMAKE_SOURCE_DIR}/deps/socket.io-client-cpp/src"
+)
 
 target_link_libraries(obs-websocket 
 	libobs
@@ -154,7 +166,8 @@ endif()
 
 # -- OS X specific build settings and tasks --
 if(APPLE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fvisibility=default")
+
+	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -fvisibility=default")
 
 	set_target_properties(obs-websocket PROPERTIES PREFIX "")
 	target_link_libraries(obs-websocket "${OBS_FRONTEND_LIB}")

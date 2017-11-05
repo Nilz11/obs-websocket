@@ -138,9 +138,9 @@ void WSRequestHandler::processIncomingMessage(QString textMessage) {
         return;
     }
 
-    if (Config::Current()->DebugEnabled) {
+    /*if (Config::Current()->DebugEnabled) {
         blog(LOG_DEBUG, "Request >> '%s'", msg);
-    }
+    }*/
 
     if (!hasField("request-type") ||
         !hasField("message-id")) {
@@ -151,12 +151,12 @@ void WSRequestHandler::processIncomingMessage(QString textMessage) {
     _requestType = obs_data_get_string(data, "request-type");
     _messageId = obs_data_get_string(data, "message-id");
 
-    if (Config::Current()->AuthRequired
+    /*if (Config::Current()->AuthRequired
         && (_client->property(PROP_AUTHENTICATED).toBool() == false)
         && (authNotRequired.find(_requestType) == authNotRequired.end())) {
         SendErrorResponse("Not Authenticated");
         return;
-    }
+    }*/
 
     void (*handlerFunc)(WSRequestHandler*) = (messageMap[_requestType]);
 
@@ -306,13 +306,6 @@ void WSRequestHandler::HandleAuthenticate(WSRequestHandler* req) {
         return;
     }
 
-    if ((req->_client->property(PROP_AUTHENTICATED).toBool() == false)
-        && Config::Current()->CheckAuth(auth)) {
-        req->_client->setProperty(PROP_AUTHENTICATED, true);
-        req->SendOKResponse();
-    } else {
-        req->SendErrorResponse("Authentication Failed.");
-    }
 }
 
 /**

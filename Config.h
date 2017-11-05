@@ -19,9 +19,6 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <mbedtls/entropy.h>
-#include <mbedtls/ctr_drbg.h>
-
 class Config {
   public:
     Config();
@@ -29,14 +26,7 @@ class Config {
     void Load();
     void Save();
 
-    void SetPassword(const char* password);
-    bool CheckAuth(const char* userChallenge);
-    const char* GenerateSalt();
-    static const char* GenerateSecret(
-        const char* password, const char* salt);
-
-    bool ServerEnabled;
-    uint64_t ServerPort;
+    const char* token;
 
     bool DebugEnabled;
     bool AlertsEnabled;
@@ -51,8 +41,6 @@ class Config {
 
   private:
     static Config* _instance;
-    mbedtls_entropy_context entropy;
-    mbedtls_ctr_drbg_context rng;
 };
 
 #endif // CONFIG_H

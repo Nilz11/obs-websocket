@@ -42,7 +42,7 @@ bool obs_module_load(void) {
     Config* config = Config::Current();
     config->Load();
 
-    WSServer::Instance = new WSServer();
+    /*WSServer::Instance = new WSServer();
     WSEvents::Instance = new WSEvents(WSServer::Instance);
 
     if (config->ServerEnabled)
@@ -50,7 +50,7 @@ bool obs_module_load(void) {
 
     // UI setup
     QAction* menu_action = (QAction*)obs_frontend_add_tools_menu_qaction(
-        obs_module_text("OBSWebsocket.Menu.SettingsItem"));
+        obs_module_text("StreamCommander.Menu.SettingsItem"));
 
     obs_frontend_push_ui_translation(obs_module_get_string);
     QMainWindow* main_window = (QMainWindow*)obs_frontend_get_main_window();
@@ -60,7 +60,7 @@ bool obs_module_load(void) {
     auto menu_cb = [] {
         settings_dialog->ToggleShowHide();
     };
-    menu_action->connect(menu_action, &QAction::triggered, menu_cb);
+    menu_action->connect(menu_action, &QAction::triggered, menu_cb);*/
 
     // Loading finished
     blog(LOG_INFO, "module loaded!");

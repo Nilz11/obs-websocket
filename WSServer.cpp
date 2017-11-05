@@ -25,6 +25,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include "obs-websocket.h"
 #include "Config.h"
 #include "Utils.h"
+#include "sio_client.h"
 
 QT_USE_NAMESPACE
 
@@ -36,9 +37,9 @@ WSServer::WSServer(QObject* parent)
       _clients(),
       _clMutex(QMutex::Recursive)
 {
-    _wsServer = new QWebSocketServer(
-        QStringLiteral("obs-websocket"),
-        QWebSocketServer::NonSecureMode);
+    sio::client h;
+
+    h.connect("http://127.0.0.1:3000");
 }
 
 WSServer::~WSServer() {

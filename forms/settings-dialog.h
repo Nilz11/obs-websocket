@@ -36,7 +36,6 @@ public:
     void ToggleShowHide();
 
 private Q_SLOTS:
-    void AuthCheckboxChanged();
     void FormAccepted();
 
 private:

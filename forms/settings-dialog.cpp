@@ -24,6 +24,22 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include "settings-dialog.h"
 #include "ui_settings-dialog.h"
 
+#include <QtNetwork>
+#include <QErrorMessage>
+
+#include "curl_easy.h"
+#include "curl_pair.h"
+#include "curl_form.h"
+#include "curl_exception.h"
+
+using std::string;
+
+using curl::curl_form;
+using curl::curl_easy;
+using curl::curl_pair;
+using curl::curl_easy_exception;
+using curl::curlcpp_traceback;
+
 #define CHANGE_ME "changeme"
 
 SettingsDialog::SettingsDialog(QWidget* parent) :
@@ -32,17 +48,13 @@ SettingsDialog::SettingsDialog(QWidget* parent) :
 {
     ui->setupUi(this);
 
-    connect(ui->authRequired, &QCheckBox::stateChanged,
-        this, &SettingsDialog::AuthCheckboxChanged);
     connect(ui->buttonBox, &QDialogButtonBox::accepted,
         this, &SettingsDialog::FormAccepted);
-
-
-    AuthCheckboxChanged();
 }
 
 void SettingsDialog::showEvent(QShowEvent* event) {
-    Config* conf = Config::Current();
+
+    /*Config* conf = Config::Current();
 
     ui->serverEnabled->setChecked(conf->ServerEnabled);
     ui->serverPort->setValue(conf->ServerPort);
@@ -51,7 +63,7 @@ void SettingsDialog::showEvent(QShowEvent* event) {
     ui->alertsEnabled->setChecked(conf->AlertsEnabled);
 
     ui->authRequired->setChecked(conf->AuthRequired);
-    ui->password->setText(CHANGE_ME);
+    ui->password->setText(CHANGE_ME);*/
 }
 
 void SettingsDialog::ToggleShowHide() {
@@ -61,48 +73,50 @@ void SettingsDialog::ToggleShowHide() {
         setVisible(false);
 }
 
-void SettingsDialog::AuthCheckboxChanged() {
-    if (ui->authRequired->isChecked())
-        ui->password->setEnabled(true);
-    else
-        ui->password->setEnabled(false);
-}
-
 void SettingsDialog::FormAccepted() {
+
+    QNetworkRequest request(QUrl("http://127.0.0.1:8060/auth/token"));
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QJsonObject body;
+
+    body.insert("clientId", "a5d3a028a711f1617bbd31f2d23efb7fa753ae5b18a66e76e46309deb73687c7dfbdf0de0141544f2f79bcc3dc6f9503");
+    body.insert("clientSecret", "fe1af4b85f753a15abd08fa47ff8cd8dc53f55df272048eece05fffb7e9b7dc211927740de6506ff15dca47f8d5c42a1");
+    body.insert("grantType", "password");
+    body.insert("username", ui->username->text());
+    body.insert("password", ui->password->text());
+
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+
+    connect(manager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(syncRequestFinished(QNetworkReply*)));
+
+    QByteArray data = QJsonDocument(body).toJson();
+
+    QNetworkReply *reply =  manager->post(request, data);
+
+    while(!reply->isFinished()){
+        qApp->processEvents();
+    }
+
+    QByteArray response_data = reply->readAll();
+    QJsonDocument json = QJsonDocument::fromJson(response_data);
+
+    QJsonObject response = json.object();
+
+    reply->deleteLater();
+
+    QByteArray token = response["token"].toString().toUtf8();
+    const char *new_token = token;
+
+    blog(LOG_INFO, "Response %s, token %s", response_data.data(), token.data());
+
     Config* conf = Config::Current();
 
-    conf->ServerEnabled = ui->serverEnabled->isChecked();
-    conf->ServerPort = ui->serverPort->value();
-
-    conf->DebugEnabled = ui->debugEnabled->isChecked();
-    conf->AlertsEnabled = ui->alertsEnabled->isChecked();
-
-    if (ui->authRequired->isChecked())
-    {
-        if (ui->password->text() != CHANGE_ME)
-        {
-            QByteArray pwd = ui->password->text().toUtf8();
-            const char *new_password = pwd;
-
-            conf->SetPassword(new_password);
-        }
-
-        if (strcmp(Config::Current()->Secret, "") != 0)
-            conf->AuthRequired = true;
-        else
-            conf->AuthRequired = false;
-    }
-    else
-    {
-        conf->AuthRequired = false;
-    }
+    conf->token = new_token;
 
     conf->Save();
-
-    if (conf->ServerEnabled)
-        WSServer::Instance->Start(conf->ServerPort);
-    else
-        WSServer::Instance->Stop();
 }
 
 SettingsDialog::~SettingsDialog() {

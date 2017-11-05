@@ -1,3 +1,18 @@
 [submodule "deps/mbedtls"]
 	path = deps/mbedtls
 	url = https://github.com/ARMmbed/mbedtls
+[submodule "deps/curlcpp"]
+	path = deps/curlcpp
+	url = https://github.com/JosephP91/curlcpp.git
+[submodule "deps/socket.io-client-cpp"]
+	path = deps/socket.io-client-cpp
+	url = https://github.com/socketio/socket.io-client-cpp.git
+[submodule "deps/rapidjson"]
+	path = deps/rapidjson
+	url = https://github.com/Tencent/rapidjson.git
+[submodule "deps/websocketpp"]
+	path = deps/websocketpp
+	url = https://github.com/zaphoyd/websocketpp.git
+[submodule "deps/--recursive"]
+	path = deps/--recursive
+	url = https://github.com/socketio/socket.io-client-cpp.git
