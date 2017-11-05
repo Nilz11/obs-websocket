@@ -39,7 +39,8 @@ apt-get install -y \
         libxcomposite-dev \
         libxinerama-dev \
         pkg-config \
-        qtbase5-dev
+        qtbase5-dev \
+        libboost-dev
 
 # obs-websocket deps
 apt-get install -y libqt5websockets5-dev

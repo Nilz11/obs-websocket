@@ -5,6 +5,7 @@ set -ex
 brew update
 brew install ffmpeg
 brew install libav
+brew install boost
 
 # qtwebsockets deps
 # qt latest
