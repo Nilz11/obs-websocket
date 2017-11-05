@@ -42,8 +42,6 @@ apt-get install -y \
         qtbase5-dev \
         libboost-dev
 
-bjam install --with-system --with-date_time --with-random link=static runtime-link=shared threading=multi
-
 # obs-websocket deps
 apt-get install -y libqt5websockets5-dev
 
